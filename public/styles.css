@@ -335,8 +335,7 @@ ul {
 .token {
   color: var(--red-dark);
   font-size: var(--smallText);
-
-  margin-top: 0;
+  margin: 0;
   text-transform: capitalize;
 }
 
@@ -354,8 +353,6 @@ ul {
 .text-success {
   color: var(--green-dark);
 }
-
-
 
 /* Popup Container */
 /* Style for the trigger button */
@@ -438,12 +435,10 @@ ul {
   }
 }
 
-
 .popup-content:hover {
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
   transform: scale(1.02);
 }
-
 
 .close {
   color: #aaa;

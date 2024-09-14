@@ -58,7 +58,7 @@ formDOM.addEventListener('submit', async (e) => {
         tokenDOM.classList.add('text-success');
     } catch (error) {
         formAlertDOM.style.display = 'block';
-        formAlertDOM.textContent = error.response.data.msg;
+        formAlertDOM.textContent = 'You logged before';
         localStorage.removeItem('token');
         resultDOM.innerHTML = '';
         tokenDOM.textContent = 'no token present';
@@ -66,7 +66,7 @@ formDOM.addEventListener('submit', async (e) => {
     }
     setTimeout(() => {
         formAlertDOM.style.display = 'none';
-    }, 2000);
+    }, 5000);
 });
 
 btnDOM.addEventListener('click', async () => {
