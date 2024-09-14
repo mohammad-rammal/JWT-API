@@ -36,7 +36,11 @@ exports.dashboard = async (req, res) => {
     const token2 = token.split('.')[1];
 
     // Get user's IP address
-    const userIP = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    const userIP =
+        req.headers['x-forwarded-for']?.split(',').shift() ||
+        req.connection?.remoteAddress ||
+        req.socket?.remoteAddress ||
+        req.connection?.socket?.remoteAddress;
 
     try {
         // Make a request to ipinfo.io to get location data from IP
@@ -44,10 +48,10 @@ exports.dashboard = async (req, res) => {
         const {city, region, country} = geoLocationResponse.data; // Extract location data
         console.log(geoLocationResponse.data);
         // Send response with location data
+
         res.status(200).json({
             msg: `Welcome ${req.user.username},`,
-            secret: `You are successfully logged in \n and your token is <p style="color: red;">${token1}\n${token2}</p>. Generated number is ${randomNumber}`,
-            location: `You are accessing this from ${city}, ${region}, ${country}`,
+            secret: `You are successfully logged in \n and your token is <p style="color: red;">${token1}\n${token2}</p>. Generated number is ${randomNumber}. \n You are accessing this from ${city}, ${region}, ${country}`,
         });
     } catch (error) {
         console.error('Error fetching location:', error);
