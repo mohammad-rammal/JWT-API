@@ -2,14 +2,14 @@ const axios = require('axios');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/main');
-const CustomAPIError = require('../errors/custom-error');
+const {BadRequestError} = require('../errors');
 
 exports.login = async (req, res) => {
     try {
         const {username, password} = req.body;
 
         if (!username || !password) {
-            throw new CustomAPIError('You must enter login data', 400);
+            throw new BadRequestError('You must enter login data');
         }
         const userIP =
             req.headers['x-forwarded-for']?.split(',').shift() ||
@@ -28,7 +28,22 @@ exports.login = async (req, res) => {
             token,
         });
     } catch (error) {
-        res.status(404).json({msg: error.message});
+        if (error.code === 11000) {
+            const duplicateKey = Object.keys(error.keyValue)[0];
+            if (duplicateKey === 'username') {
+                return res.status(400).json({
+                    success: false,
+                    msg: 'Username already exists. Please choose another username.',
+                });
+            } else if (duplicateKey === 'userIP') {
+                return res.status(400).json({
+                    success: false,
+                    msg: 'User IP address already exists. This IP address is already registered.',
+                });
+            }
+        }
+
+        res.status(500).json({msg: error.message});
     }
 };
 
