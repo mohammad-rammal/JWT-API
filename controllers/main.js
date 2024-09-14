@@ -25,32 +25,38 @@ exports.login = async (req, res) => {
     }
 };
 
+const axios = require('axios');
+
 exports.dashboard = async (req, res) => {
-    const authHeader = req.headers.authorization;
+    console.log(req.user);
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        throw new CustomAPIError('No token provided, please login again!', 401);
-    }
+    const randomNumber = Math.floor(Math.random() * 100000);
+    const token = req.headers.authorization.split(' ')[1];
+    const token1 = token.split('.')[0];
+    const token2 = token.split('.')[1];
 
-    const token = authHeader.split(' ')[1];
-    // console.log('token', token);
-    let decoded;
-    let token1 = token.split('.')[0];
-    let token2 = token.split('.')[1];
+    // Get user's IP address
+    const userIP = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+
     try {
-        decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-        // console.log('decoded', decoded); //decoded { id: 14, username: 'Mohammad', iat: 1726320910, exp: 1728912910 }
+        // Make a request to ipinfo.io to get location data from IP
+        const geoLocationResponse = await axios.get(`https://ipinfo.io/${userIP}?token=872395586b748b`);
+        const {city, region, country} = geoLocationResponse.data; // Extract location data
+        console.log(geoLocationResponse.data);
+        // Send response with location data
+        res.status(200).json({
+            msg: `Welcome ${req.user.username},`,
+            secret: `You are successfully logged in \n and your token is <p style="color: red;">${token1}\n${token2}</p>. Generated number is ${randomNumber}`,
+            location: `You are accessing this from ${city}, ${region}, ${country}`,
+        });
     } catch (error) {
-        throw new CustomAPIError('Not authorized to access!', 401);
+        console.error('Error fetching location:', error);
+        res.status(500).json({
+            msg: `Welcome ${req.user.username},`,
+            secret: `You are successfully logged in \n and your token is <p style="color: red;">${token1}\n${token2}</p>. Generated number is ${randomNumber}`,
+            location: 'Could not retrieve your location.',
+        });
     }
-
-    const randomNumber = Math.floor(Math.random() * 100000); // 0-99
-
-    res.status(200).json({
-        msg: `Welcome ${decoded.username},`,
-        secret: `You are successfully login \n and your token is <p style="color: red;"> ${token1} \n ${token2} </p>Generated number is ${randomNumber}`,
-    });
 };
 
 // exports.login = async (req, res) => {
