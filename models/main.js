@@ -14,7 +14,6 @@ const userSchema = new mongoose.Schema({
     },
     userIP: {
         type: String,
-        required: true,
         unique: true, // Ensure userIP is unique
     },
 });

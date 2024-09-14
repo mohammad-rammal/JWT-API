@@ -11,11 +11,16 @@ exports.login = async (req, res) => {
         if (!username || !password) {
             throw new BadRequestError('You must enter login data');
         }
-        const userIP =
+        let userIP =
             req.headers['x-forwarded-for']?.split(',').shift() ||
             req.connection?.remoteAddress ||
             req.socket?.remoteAddress ||
             req.connection?.socket?.remoteAddress;
+
+        if (userIP && userIP.startsWith('::ffff:')) {
+            userIP = userIP.split(':').pop();
+        }
+        console.log(userIP);
 
         const newUser = await User.create({username, password, userIP});
         const id = new Date().getDate();
@@ -38,7 +43,7 @@ exports.login = async (req, res) => {
             } else if (duplicateKey === 'userIP') {
                 return res.status(400).json({
                     success: false,
-                    msg: 'User IP address already exists. This IP address is already registered.',
+                    msg: 'You logged before! ⚠️',
                 });
             }
         }
